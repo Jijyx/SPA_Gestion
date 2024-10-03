@@ -1,59 +1,26 @@
 var express = require('express');
 var router = express.Router();
-var db  = require('../lib/db');
+const db = require('../db')
  
 
 router.get('/', function(req, res, next) {      
-    db.query('SELECT * FROM species ORDER BY id desc',function(err,rows)     {
-        if(err) {
-            req.flash('error', err);
-            res.render('species',{data:''});   
-        } else {
-            res.render('species',{data:rows});
-        }
-    });
+    db.query("SELECT name FROM species", function(err, result) {
+        if (err) throw err;
+        console.log(result);
+        res.send(result)
 });
-
-
-router.post('/add', function(req, res, next) {    
-
-    let name = req.body.name;
-    let email = req.body.email;
-    let position = req.body.position;
-    let errors = false;
-
-    if(name.length === 0 || email.length === 0 || position === 0) {
-        errors = true;
-        req.flash('error', "Please enter name and email and position");
-        res.render('species/add', {
-            name: name,
-            email: email,
-            position:position
-        })
-    }
-    if(!errors) {
-
-        var form_data = {
-            name: name,
-            email: email,
-            position:position
-        }
-        
-        db.query('INSERT INTO species SET ?', form_data, function(err, result) {
-            if (err) {
-                req.flash('error', err)
-                res.render('species/add', {
-                    name: form_data.name,
-                    email: form_data.email,
-                    position:form_data.position
-                })
-            } else {                
-                req.flash('success', 'User successfully added');
-                res.redirect('/species');
-            }
-        })
-    }
 })
+
+// Create a new specie
+router.post('/add', (req, res) => {
+    console.log(req.body.name)
+    const {name} = req.body;
+    db.query('INSERT INTO species (name) VALUES (?)', [name], (err, result) => {
+      if (err) throw err;
+      res.json({ message: 'specie added successfully', id: result.insertId });
+    });
+  });
+
 
 router.get('/edit/(:id)', function(req, res, next) {
 
