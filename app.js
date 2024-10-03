@@ -3,11 +3,13 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+const mysql = require('mysql');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 
 var app = express();
+const db = mysql.createConnection({host: "localhost", database: "SPA_Gestion"});
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -37,5 +39,15 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
+
+db.connect(function(err) {   
+  if (err) throw err;   
+  console.log("Connecté à la base de données MySQL!"); 
+  db.query("SELECT * FROM fur", function(err, result) {
+    if (err) throw err;
+    console.log(result);
+  });
+});
+
 
 module.exports = app;
