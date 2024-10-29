@@ -1,26 +1,28 @@
 var express = require('express');
 var router = express.Router();
-const db = require('../db')
+var db = require('../config');
  
 
 router.get('/', function(req, res, next) {      
-    db.query("SELECT * FROM animal_summary", function(err, result) {
-        if (err) throw err;
-        console.log(result);
-        res.send(result)
-});
-})
-
-// Create a new specie
-router.post('/', (req, res) => {
-    
-    const {Name, Age, Entry_Date, Available} = req.body;
-    console.log(Name, Age, Entry_Date, Available)
-    db.query("INSERT INTO animal (name, age, Entry_Date, Available) VALUES (?,?,?,?)",[Name, Age, Entry_Date, Available], (err, result) => {
-      if (err) throw err;
-      res.json({ message: 'animal added successfully', id: result.insertId });
+    db.query('SELECT * FROM animals',function(err,results)     {
+        if(err) throw err;
+        res.send(results);
     });
-  });
+});
 
+router.post('/', (req, res, next) => {    
+    let name = req.body.name;
+    let age = req.body.age;
+    let entry_date = req.body.entry_date;
+    let out_date = req.body.out_date;
+    let birthdate = req.body.birthdate;
+    let available = req.body.available;
+    let identification_number = req.body.identification_number;
+    db.query('INSERT INTO animals (Name) VALUES (?)', [name], (err, result) => {
+        if (err) throw err;
+        res.send(result);
+    });
+    
+});
 
 module.exports = router;
